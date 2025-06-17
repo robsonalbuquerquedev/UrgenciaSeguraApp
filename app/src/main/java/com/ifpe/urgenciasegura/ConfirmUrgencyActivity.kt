@@ -322,36 +322,48 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         }
     }
     fun enviarFotoParaTelegram(fileBytes: ByteArray, fileName: String) {
-        val token = "8074300794:AAGzLfZBAE46p4plwxixAug1rkWEbfICJ2k"
-        val chatId = "1231173719"
-        val url = URL("https://api.telegram.org/bot$token/sendPhoto")
-        val boundary = "WebKit" + System.currentTimeMillis()
+        Thread {
+            try {
+                val token = "8074300794:AAGzLfZBAE46p4plwxixAug1rkWEbfICJ2k"
+                val chatId = "1231173719"
+                val url = URL("https://api.telegram.org/bot$token/sendPhoto")
+                val boundary = "WebKit" + System.currentTimeMillis()
 
-        val conn = url.openConnection() as HttpURLConnection
-        conn.apply {
-            doOutput = true
-            requestMethod = "POST"
-            setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
-        }
+                val conn = url.openConnection() as HttpURLConnection
+                conn.apply {
+                    doOutput = true
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+                }
 
-        val output = DataOutputStream(conn.outputStream)
-        output.writeBytes("--$boundary\r\n")
-        output.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n")
-        output.writeBytes("$chatId\r\n")
+                val output = DataOutputStream(conn.outputStream)
+                output.writeBytes("--$boundary\r\n")
+                output.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n")
+                output.writeBytes("$chatId\r\n")
 
-        output.writeBytes("--$boundary\r\n")
-        output.writeBytes("Content-Disposition: form-data; name=\"photo\"; filename=\"$fileName\"\r\n")
-        output.writeBytes("Content-Type: image/jpeg\r\n\r\n")
-        output.write(fileBytes)
-        output.writeBytes("\r\n--$boundary--\r\n")
-        output.flush()
-        output.close()
+                output.writeBytes("--$boundary\r\n")
+                output.writeBytes("Content-Disposition: form-data; name=\"photo\"; filename=\"$fileName\"\r\n")
+                output.writeBytes("Content-Type: image/jpeg\r\n\r\n")
+                output.write(fileBytes)
+                output.writeBytes("\r\n--$boundary--\r\n")
+                output.flush()
+                output.close()
 
-        val responseCode = conn.responseCode
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            println("✅ Foto enviada com sucesso")
-        } else {
-            println("❌ Erro ao enviar: $responseCode")
-        }
+                val responseCode = conn.responseCode
+                val responseText = conn.inputStream.bufferedReader().use { it.readText() }
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    println("✅ Foto enviada com sucesso")
+                    println("📨 Resposta do Telegram: $responseText")
+                } else {
+                    println("❌ Erro ao enviar: $responseCode")
+                    val errorStream = conn.errorStream?.bufferedReader()?.use { it.readText() }
+                    println("🔍 Resposta de erro: $errorStream")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("❌ Erro inesperado ao enviar foto: ${e.message}")
+            }
+        }.start()
     }
 }
