@@ -21,9 +21,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Bloco único com fundo arredondado e sombra -->
-
-        <!-- Linha com os botões: Voltar e Enviar Solicitação -->
         <LinearLayout
             android:id="@+id/blocoUnicoLayout"
             android:layout_width="match_parent"
@@ -77,10 +74,10 @@
                 android:orientation="horizontal">
 
                 <RadioButton
-                    android:id="@+id/radioSamu"
+                    android:id="@+id/radioGuardaMunicipal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SAMU"
+                    android:text="Guarda Municipal"
                     android:textColor="#264D73" />
 
                 <RadioButton
@@ -133,14 +130,6 @@
                 android:backgroundTint="#264D73"
                 android:text="📸 Tirar Foto"
                 android:textColor="#FFFFFF" />
-
-            <ImageView
-                android:id="@+id/imageViewFoto"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="16dp"
-                android:scaleType="centerCrop"
-                android:contentDescription="Foto tirada" />
         </LinearLayout>
 
         <LinearLayout
