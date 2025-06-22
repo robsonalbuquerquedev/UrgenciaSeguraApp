@@ -135,31 +135,29 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center"
-            android:weightSum="2">
+            android:padding="16dp"
+            android:background="@drawable/rounded_shadow_background">
 
             <Button
                 android:id="@+id/buttonVoltar"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Voltar"
-                android:backgroundTint="#264D73"
                 android:textColor="#FFFFFF"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="#264D73"/>
 
             <Button
                 android:id="@+id/buttonEnviar"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:textStyle="bold"
+                android:elevation="4dp"
                 android:text="Enviar Solicitação"
-                android:backgroundTint="#264D73"
                 android:textColor="#FFFFFF"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="8dp"/>
+                android:backgroundTint="#264D73"/>
         </LinearLayout>
     </LinearLayout>
 
