@@ -75,13 +75,11 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         radioGroupServico = findViewById(R.id.radioGroupServico)
         spinnerTipoUrgencia = findViewById(R.id.spinnerTipoUrgencia)
         editOutroTipoUrgencia = findViewById(R.id.editOutroTipoUrgencia)
-        // Deixa a Guarda Municipal selecionada por padrão
+
         radioGroupServico.check(R.id.radioGuardaMunicipal)
 
-// Inicialmente coloca as opções da Guarda Municipal
         atualizarSpinner(tiposGuardaMunicipal)
 
-// Quando mudar o RadioButton
         radioGroupServico.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radioGuardaMunicipal -> atualizarSpinner(tiposGuardaMunicipal)
@@ -89,7 +87,6 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             }
         }
 
-// Quando selecionar no Spinner
         spinnerTipoUrgencia.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?, view: View?, position: Int, id: Long
@@ -250,20 +247,30 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         celular: String,
         observacao: String
     ) {
+        if (nome.isBlank() || idade.isBlank() || celular.isBlank()) {
+            Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val idadeValida = idade.toIntOrNull()
+        if (idadeValida == null || idadeValida <= 0) {
+            Toast.makeText(this, "Informe uma idade válida.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val database = FirebaseDatabase.getInstance()
         val ref = database.getReference("urgencias")
-
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid == null) {
             Toast.makeText(this, "Usuário não autenticado.", Toast.LENGTH_SHORT).show()
             return
         }
-
         val tipoUrgencia = obterTipoUrgencia()
+        if (tipoUrgencia == "Selecione a gravidade") {
+            Toast.makeText(this, "Por favor, selecione a gravidade da urgência.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val dataHora = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
         val localizacaoAtual = ultimaLocalizacao ?: "Localização não disponível"
 
-        // 💡 Pegando o órgão selecionado
         val radioGroup = findViewById<RadioGroup>(R.id.radioGroupServico)
         val selectedRadioId = radioGroup.checkedRadioButtonId
         val orgaoSelecionado = when (selectedRadioId) {
@@ -271,8 +278,6 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             R.id.radioDefesaCivil -> "Defesa Civil"
             else -> "Outro"
         }
-
-        // 🔥 Incluindo o órgão no mapa de dados
         val dadosUrgencia = mutableMapOf(
             "nome" to nome,
             "idade" to idade,
@@ -285,12 +290,10 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             "orgao" to orgaoSelecionado,
             "status" to "novo"
         )
-
         ref.child(uid).push().setValue(dadosUrgencia)
             .addOnSuccessListener {
                 Toast.makeText(this, "Solicitação enviada com sucesso!", Toast.LENGTH_SHORT).show()
 
-                // ✅ Agora sim, enviaremos a foto para o Telegram aqui
                 fotoUri?.let { uri ->
                     try {
                         val inputStream = contentResolver.openInputStream(uri)
