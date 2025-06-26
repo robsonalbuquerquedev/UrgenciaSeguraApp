@@ -32,6 +32,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import org.json.JSONObject
 import java.io.DataOutputStream
 import java.io.File
 import java.net.HttpURLConnection
@@ -251,23 +252,28 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
             return
         }
+
         val idadeValida = idade.toIntOrNull()
         if (idadeValida == null || idadeValida <= 0) {
             Toast.makeText(this, "Informe uma idade válida.", Toast.LENGTH_SHORT).show()
             return
         }
-        val database = FirebaseDatabase.getInstance()
-        val ref = database.getReference("urgencias")
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid == null) {
-            Toast.makeText(this, "Usuário não autenticado.", Toast.LENGTH_SHORT).show()
-            return
-        }
+
         val tipoUrgencia = obterTipoUrgencia()
         if (tipoUrgencia == "Selecione a gravidade") {
             Toast.makeText(this, "Por favor, selecione a gravidade da urgência.", Toast.LENGTH_SHORT).show()
             return
         }
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(this, "Usuário não autenticado.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val database = FirebaseDatabase.getInstance()
+        val ref = database.getReference("urgencias")
+
         val dataHora = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
         val localizacaoAtual = ultimaLocalizacao ?: "Localização não disponível"
 
@@ -278,6 +284,9 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             R.id.radioDefesaCivil -> "Defesa Civil"
             else -> "Outro"
         }
+
+        // 1️⃣ Criar push key da ocorrência
+        val novaOcorrenciaRef = ref.child(uid).push()
         val dadosUrgencia = mutableMapOf(
             "nome" to nome,
             "idade" to idade,
@@ -290,7 +299,8 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             "orgao" to orgaoSelecionado,
             "status" to "novo"
         )
-        ref.child(uid).push().setValue(dadosUrgencia)
+
+        novaOcorrenciaRef.setValue(dadosUrgencia)
             .addOnSuccessListener {
                 Toast.makeText(this, "Solicitação enviada com sucesso!", Toast.LENGTH_SHORT).show()
 
@@ -302,7 +312,10 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
 
                         if (fileBytes != null) {
                             val fileName = "urgencia_${System.currentTimeMillis()}.jpg"
-                            enviarFotoParaTelegram(fileBytes, fileName)
+                            enviarFotoParaTelegram(fileBytes, fileName) { fileUrl ->
+                                // 2️⃣ Atualizar o Firebase com o link da imagem
+                                novaOcorrenciaRef.child("fotoUrl").setValue(fileUrl)
+                            }
                         } else {
                             println("⚠️ Nenhum byte encontrado na foto.")
                         }
@@ -324,15 +337,15 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             tipoSelecionado
         }
     }
-    fun enviarFotoParaTelegram(fileBytes: ByteArray, fileName: String) {
+    fun enviarFotoParaTelegram(fileBytes: ByteArray, fileName: String, onFotoEnviada: (String) -> Unit) {
         Thread {
             try {
                 val token = "8074300794:AAGzLfZBAE46p4plwxixAug1rkWEbfICJ2k"
                 val chatId = "1231173719"
-                val url = URL("https://api.telegram.org/bot$token/sendPhoto")
+                val sendPhotoUrl = URL("https://api.telegram.org/bot$token/sendPhoto")
                 val boundary = "WebKit" + System.currentTimeMillis()
 
-                val conn = url.openConnection() as HttpURLConnection
+                val conn = sendPhotoUrl.openConnection() as HttpURLConnection
                 conn.apply {
                     doOutput = true
                     requestMethod = "POST"
@@ -356,16 +369,34 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
                 val responseText = conn.inputStream.bufferedReader().use { it.readText() }
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    println("✅ Foto enviada com sucesso")
-                    println("📨 Resposta do Telegram: $responseText")
+                    val json = JSONObject(responseText)
+                    val result = json.getJSONObject("result")
+                    val photoArray = result.getJSONArray("photo")
+                    val lastPhoto = photoArray.getJSONObject(photoArray.length() - 1)
+                    val fileId = lastPhoto.getString("file_id")
+
+                    // getFile
+                    val getFileUrl = URL("https://api.telegram.org/bot$token/getFile?file_id=$fileId")
+                    val getFileConn = getFileUrl.openConnection() as HttpURLConnection
+                    val getFileResponse = getFileConn.inputStream.bufferedReader().use { it.readText() }
+                    val fileJson = JSONObject(getFileResponse)
+                    val filePath = fileJson.getJSONObject("result").getString("file_path")
+
+                    val fileUrl = "https://api.telegram.org/file/bot$token/$filePath"
+
+                    println("✅ Foto disponível em: $fileUrl")
+
+                    // 🔁 Chamar callback para atualizar o Firebase
+                    onFotoEnviada(fileUrl)
+
                 } else {
-                    println("❌ Erro ao enviar: $responseCode")
+                    println("❌ Erro ao enviar imagem: $responseCode")
                     val errorStream = conn.errorStream?.bufferedReader()?.use { it.readText() }
-                    println("🔍 Resposta de erro: $errorStream")
+                    println("🔍 Erro: $errorStream")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                println("❌ Erro inesperado ao enviar foto: ${e.message}")
+                println("❌ Erro ao enviar foto: ${e.message}")
             }
         }.start()
     }
