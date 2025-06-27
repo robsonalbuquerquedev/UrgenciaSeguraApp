@@ -252,31 +252,26 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
             return
         }
-
         val idadeValida = idade.toIntOrNull()
         if (idadeValida == null || idadeValida <= 0) {
             Toast.makeText(this, "Informe uma idade válida.", Toast.LENGTH_SHORT).show()
             return
         }
-
         val tipoUrgencia = obterTipoUrgencia()
         if (tipoUrgencia == "Selecione a gravidade") {
             Toast.makeText(this, "Por favor, selecione a gravidade da urgência.", Toast.LENGTH_SHORT).show()
             return
         }
-
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid == null) {
             Toast.makeText(this, "Usuário não autenticado.", Toast.LENGTH_SHORT).show()
             return
         }
-
         val database = FirebaseDatabase.getInstance()
-        val ref = database.getReference("urgencias")
-
+        val ref = database.getReference("urgencias") // Agora salvando diretamente no nó principal
         val dataHora = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+        val timestamp = System.currentTimeMillis() // 💡 Usado para ordenação no portal
         val localizacaoAtual = ultimaLocalizacao ?: "Localização não disponível"
-
         val radioGroup = findViewById<RadioGroup>(R.id.radioGroupServico)
         val selectedRadioId = radioGroup.checkedRadioButtonId
         val orgaoSelecionado = when (selectedRadioId) {
@@ -284,10 +279,9 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             R.id.radioDefesaCivil -> "Defesa Civil"
             else -> "Outro"
         }
-
-        // 1️⃣ Criar push key da ocorrência
-        val novaOcorrenciaRef = ref.child(uid).push()
+        val novaOcorrenciaRef = ref.push()
         val dadosUrgencia = mutableMapOf(
+            "uid" to uid,
             "nome" to nome,
             "idade" to idade,
             "celular" to celular,
@@ -297,13 +291,12 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             "dataHoraFim" to "",
             "localizacao" to localizacaoAtual,
             "orgao" to orgaoSelecionado,
-            "status" to "novo"
+            "status" to "novo",
+            "timestamp" to timestamp
         )
-
         novaOcorrenciaRef.setValue(dadosUrgencia)
             .addOnSuccessListener {
                 Toast.makeText(this, "Solicitação enviada com sucesso!", Toast.LENGTH_SHORT).show()
-
                 fotoUri?.let { uri ->
                     try {
                         val inputStream = contentResolver.openInputStream(uri)
@@ -313,7 +306,6 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
                         if (fileBytes != null) {
                             val fileName = "urgencia_${System.currentTimeMillis()}.jpg"
                             enviarFotoParaTelegram(fileBytes, fileName) { fileUrl ->
-                                // 2️⃣ Atualizar o Firebase com o link da imagem
                                 novaOcorrenciaRef.child("fotoUrl").setValue(fileUrl)
                             }
                         } else {
@@ -344,19 +336,16 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
                 val chatId = "1231173719"
                 val sendPhotoUrl = URL("https://api.telegram.org/bot$token/sendPhoto")
                 val boundary = "WebKit" + System.currentTimeMillis()
-
                 val conn = sendPhotoUrl.openConnection() as HttpURLConnection
                 conn.apply {
                     doOutput = true
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
                 }
-
                 val output = DataOutputStream(conn.outputStream)
                 output.writeBytes("--$boundary\r\n")
                 output.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n")
                 output.writeBytes("$chatId\r\n")
-
                 output.writeBytes("--$boundary\r\n")
                 output.writeBytes("Content-Disposition: form-data; name=\"photo\"; filename=\"$fileName\"\r\n")
                 output.writeBytes("Content-Type: image/jpeg\r\n\r\n")
@@ -364,31 +353,22 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
                 output.writeBytes("\r\n--$boundary--\r\n")
                 output.flush()
                 output.close()
-
                 val responseCode = conn.responseCode
                 val responseText = conn.inputStream.bufferedReader().use { it.readText() }
-
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     val json = JSONObject(responseText)
                     val result = json.getJSONObject("result")
                     val photoArray = result.getJSONArray("photo")
                     val lastPhoto = photoArray.getJSONObject(photoArray.length() - 1)
                     val fileId = lastPhoto.getString("file_id")
-
-                    // getFile
                     val getFileUrl = URL("https://api.telegram.org/bot$token/getFile?file_id=$fileId")
                     val getFileConn = getFileUrl.openConnection() as HttpURLConnection
                     val getFileResponse = getFileConn.inputStream.bufferedReader().use { it.readText() }
                     val fileJson = JSONObject(getFileResponse)
                     val filePath = fileJson.getJSONObject("result").getString("file_path")
-
                     val fileUrl = "https://api.telegram.org/file/bot$token/$filePath"
-
                     println("✅ Foto disponível em: $fileUrl")
-
-                    // 🔁 Chamar callback para atualizar o Firebase
                     onFotoEnviada(fileUrl)
-
                 } else {
                     println("❌ Erro ao enviar imagem: $responseCode")
                     val errorStream = conn.errorStream?.bufferedReader()?.use { it.readText() }

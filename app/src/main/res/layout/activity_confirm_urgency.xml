@@ -71,7 +71,7 @@
                 android:id="@+id/radioGroupServico"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <RadioButton
                     android:id="@+id/radioGuardaMunicipal"
@@ -84,7 +84,7 @@
                     android:id="@+id/radioDefesaCivil"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
                     android:text="Defesa Civil"
                     android:textColor="#264D73" />
             </RadioGroup>
