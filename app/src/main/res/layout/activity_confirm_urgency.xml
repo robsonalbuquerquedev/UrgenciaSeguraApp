@@ -146,19 +146,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Voltar"
+                android:backgroundTint="#264D73"
                 android:textColor="#FFFFFF"
-                android:layout_marginBottom="12dp"
-                android:backgroundTint="#264D73"/>
+                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/buttonEnviar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:elevation="4dp"
                 android:text="Enviar Solicitação"
+                android:backgroundTint="#264D73"
                 android:textColor="#FFFFFF"
-                android:backgroundTint="#264D73"/>
+                android:textStyle="bold"
+                android:elevation="4dp"/>
         </LinearLayout>
     </LinearLayout>
 

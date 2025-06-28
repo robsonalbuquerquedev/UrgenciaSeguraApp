@@ -240,35 +240,32 @@
                 android:layout_marginBottom="8dp" />
         </LinearLayout>
 
-        <!-- Linha com os botões: Voltar e Continuar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center"
-            android:weightSum="2">
+            android:padding="16dp"
+            android:background="@drawable/rounded_shadow_background">
 
             <Button
                 android:id="@+id/buttonVoltarHome"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Voltar"
                 android:backgroundTint="#264D73"
                 android:textColor="#FFFFFF"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/buttonContinuar"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Continuar"
                 android:backgroundTint="#264D73"
                 android:textColor="#FFFFFF"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="8dp"/>
+                android:textStyle="bold"
+                android:elevation="4dp"/>
         </LinearLayout>
     </LinearLayout>
 
