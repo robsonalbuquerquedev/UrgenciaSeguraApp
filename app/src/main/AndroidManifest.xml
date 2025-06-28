@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Câmera é opcional: bom para não restringir a instalação em aparelhos sem câmera -->
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false" />
-
-    <!-- Permissão de Câmera -->
-    <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- Permissões de armazenamento (compatível com versões mais antigas) -->
+        android:required="false" /> <!-- Permissão de Câmera -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Permissões de armazenamento (compatível com versões mais antigas) -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-    <!-- Permissões de localização (já que seu app usa) -->
+        android:maxSdkVersion="28" /> <!-- Permissões de localização (já que seu app usa) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
@@ -29,6 +22,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UrgenciaSegura"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.minhasurgencias.MinhasUrgenciasActivity"
+            android:exported="false" />
         <activity
             android:name=".ConfirmUrgencyActivity"
             android:exported="false" />
@@ -71,6 +67,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
