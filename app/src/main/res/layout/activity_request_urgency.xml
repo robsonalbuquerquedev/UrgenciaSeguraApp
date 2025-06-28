@@ -31,7 +31,7 @@
             android:padding="24dp"
             android:layout_margin="16dp">
 
-            <!-- Header com logo e nome -->
+            <!-- Header com logo e nome
             <LinearLayout
                 android:id="@+id/headerLayoutRequest"
                 android:layout_width="match_parent"
@@ -54,6 +54,7 @@
                     android:textColor="#264D73"
                     android:layout_marginStart="8dp" />
             </LinearLayout>
+            -->
 
             <!-- Pergunta destacada -->
             <TextView
@@ -72,7 +73,7 @@
                 android:id="@+id/radioGroupOpcao"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <RadioButton
                     android:id="@+id/radioEu"
@@ -87,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:text="Para outra pessoa"
                     android:textColor="#264D73"
-                    android:layout_marginStart="24dp" />
+                    android:layout_marginTop="8dp" />
             </RadioGroup>
         </LinearLayout>
 
