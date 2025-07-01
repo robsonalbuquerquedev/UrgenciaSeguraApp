@@ -2,52 +2,76 @@ package com.ifpe.urgenciasegura
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.ifpe.urgenciasegura.ui.minhasurgencias.MinhasUrgenciasActivity
-import com.ifpe.urgenciasegura.ui.minhasurgencias.MinhasUrgenciasFragment
 
 class ScreenHomeActivity : AppCompatActivity() {
 
     private lateinit var buttonSolicitarUrgencia: Button
-    private lateinit var buttonLogout: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_screen_home)
 
-        val btnMinhasUrgencias = findViewById<Button>(R.id.buttonMinhasUrgencias)
+        // Configura a Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbarHome)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "Tela Inicial"
+
+        // Recupera preferências do usuário
         val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
         val nomeUsuario = prefs.getString("nome", "Usuário")
 
         val welcomeMessage = findViewById<TextView>(R.id.welcomeMessage)
         welcomeMessage.text = "Olá, $nomeUsuario! Tudo pronto para te ajudar."
 
+        // Botões da interface
         buttonSolicitarUrgencia = findViewById(R.id.buttonSolicitarUrgencia)
-        buttonLogout = findViewById(R.id.buttonLogout)
+        val btnMinhasUrgencias = findViewById<Button>(R.id.buttonMinhasUrgencias)
 
         buttonSolicitarUrgencia.setOnClickListener {
             val intent = Intent(this, RequestUrgencyActivity::class.java)
             startActivity(intent)
         }
+
         btnMinhasUrgencias.setOnClickListener {
             val intent = Intent(this, MinhasUrgenciasActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
         }
-        buttonLogout.setOnClickListener {
-            prefs.edit().clear().apply()
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(this, ScreenLoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
+    }
+
+    // Infla o menu na Toolbar
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_toolbar, menu)
+        return true
+    }
+
+    // Ações dos itens da Toolbar
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_logout -> {
+                // Limpa preferências e faz logout do Firebase
+                val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+                prefs.edit().clear().apply()
+                FirebaseAuth.getInstance().signOut()
+
+                val intent = Intent(this, ScreenLoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
+
     override fun onSupportNavigateUp(): Boolean {
         finish()
         overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)

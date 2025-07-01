@@ -8,6 +8,18 @@
     android:background="@drawable/background"
     tools:context=".ConfirmUrgencyActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarConfirmUrgency"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#264D73"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:title="Confirmação"
+        app:titleTextColor="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Conteúdo centralizado -->
     <LinearLayout
         android:id="@+id/verticalLayoutConfirm"
@@ -140,15 +152,6 @@
             android:gravity="center"
             android:padding="16dp"
             android:background="@drawable/rounded_shadow_background">
-
-            <Button
-                android:id="@+id/buttonVoltar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Voltar"
-                android:backgroundTint="#264D73"
-                android:textColor="#FFFFFF"
-                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/buttonEnviar"

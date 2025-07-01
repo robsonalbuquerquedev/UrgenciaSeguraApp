@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.Spinner
+import androidx.appcompat.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -28,12 +29,11 @@ class RequestUrgencyActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val botaoVoltarHome = findViewById<Button>(R.id.buttonVoltarHome)
-        botaoVoltarHome.setOnClickListener {
-            val intent = Intent(this, ScreenHomeActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
+        val toolbar = findViewById<Toolbar>(R.id.toolbarRequestUrgency)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Solicitar Urgência"
+
         val radioGroup = findViewById<RadioGroup>(R.id.radioGroupOpcao)
         val layoutOutraPessoa = findViewById<LinearLayout>(R.id.layoutOutraPessoa)
         val layoutDadosUsuario = findViewById<LinearLayout>(R.id.layoutDadosUsuario)
@@ -215,6 +215,11 @@ class RequestUrgencyActivity : AppCompatActivity() {
         buttonEnviar.setOnClickListener {
             enviarSolicitacaoParaFirebase()
         }*/
+    }
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+        return true
     }
     /*@SuppressLint("MissingPermission")
     private fun obterLocalizacaoAtual() {

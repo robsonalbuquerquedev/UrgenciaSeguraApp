@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.appcompat.widget.Toolbar
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
@@ -67,12 +68,11 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val botaoVoltar = findViewById<Button>(R.id.buttonVoltar)
-        botaoVoltar.setOnClickListener {
-            val intent = Intent(this, RequestUrgencyActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
+        val toolbar = findViewById<Toolbar>(R.id.toolbarConfirmUrgency)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Confirmação"
+
         radioGroupServico = findViewById(R.id.radioGroupServico)
         spinnerTipoUrgencia = findViewById(R.id.spinnerTipoUrgencia)
         editOutroTipoUrgencia = findViewById(R.id.editOutroTipoUrgencia)
@@ -379,5 +379,12 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
                 println("❌ Erro ao enviar foto: ${e.message}")
             }
         }.start()
+    }
+    override fun onSupportNavigateUp(): Boolean {
+        val intent = Intent(this, RequestUrgencyActivity::class.java)
+        startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+        finish()
+        return true
     }
 }

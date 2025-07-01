@@ -8,6 +8,18 @@
     android:background="@drawable/background"
     tools:context=".RequestUrgencyActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarRequestUrgency"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#264D73"
+        app:title="Solicitar Urgência"
+        app:titleTextColor="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <!-- Conteúdo centralizado -->
     <LinearLayout
         android:id="@+id/verticalLayoutRequest"
@@ -247,15 +259,6 @@
             android:gravity="center"
             android:padding="16dp"
             android:background="@drawable/rounded_shadow_background">
-
-            <Button
-                android:id="@+id/buttonVoltarHome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Voltar"
-                android:backgroundTint="#264D73"
-                android:textColor="#FFFFFF"
-                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/buttonContinuar"
