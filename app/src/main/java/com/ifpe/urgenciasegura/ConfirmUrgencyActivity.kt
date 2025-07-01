@@ -297,6 +297,10 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         novaOcorrenciaRef.setValue(dadosUrgencia)
             .addOnSuccessListener {
                 Toast.makeText(this, "Solicitação enviada com sucesso!", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, ScreenHomeActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+                finish()
                 fotoUri?.let { uri ->
                     try {
                         val inputStream = contentResolver.openInputStream(uri)
