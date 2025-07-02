@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import com.google.firebase.auth.FirebaseAuth
 import com.ifpe.urgenciasegura.ui.minhasurgencias.MinhasUrgenciasActivity
 
@@ -32,27 +33,31 @@ class ScreenHomeActivity : AppCompatActivity() {
         welcomeMessage.text = "Olá, $nomeUsuario! Tudo pronto para te ajudar."
 
         // Botões da interface
-        buttonSolicitarUrgencia = findViewById(R.id.buttonSolicitarUrgencia)
+        val cardGuarda = findViewById<CardView>(R.id.cardGuardaMunicipal)
+        val cardDefesa = findViewById<CardView>(R.id.cardDefesaCivil)
         val btnMinhasUrgencias = findViewById<Button>(R.id.buttonMinhasUrgencias)
 
-        buttonSolicitarUrgencia.setOnClickListener {
+        cardGuarda.setOnClickListener {
             val intent = Intent(this, RequestUrgencyActivity::class.java)
+            intent.putExtra("servico", "guarda")
             startActivity(intent)
         }
-
+        cardDefesa.setOnClickListener {
+            val intent = Intent(this, RequestUrgencyActivity::class.java)
+            intent.putExtra("servico", "defesa")
+            startActivity(intent)
+        }
         btnMinhasUrgencias.setOnClickListener {
             val intent = Intent(this, MinhasUrgenciasActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
         }
     }
-
     // Infla o menu na Toolbar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
         return true
     }
-
     // Ações dos itens da Toolbar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -71,7 +76,6 @@ class ScreenHomeActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
-
     override fun onSupportNavigateUp(): Boolean {
         finish()
         overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)

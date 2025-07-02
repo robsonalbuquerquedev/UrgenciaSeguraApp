@@ -2,6 +2,7 @@ package com.ifpe.urgenciasegura
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -34,6 +35,7 @@ class RequestUrgencyActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Solicitar Urgência"
 
+        val servicoSelecionado = intent.getStringExtra("servico") ?: "guarda"
         val radioGroup = findViewById<RadioGroup>(R.id.radioGroupOpcao)
         val layoutOutraPessoa = findViewById<LinearLayout>(R.id.layoutOutraPessoa)
         val layoutDadosUsuario = findViewById<LinearLayout>(R.id.layoutDadosUsuario)
@@ -101,6 +103,8 @@ class RequestUrgencyActivity : AppCompatActivity() {
             intent.putExtra("idade", idade)
             intent.putExtra("celular", celular)
             intent.putExtra("observacao", observacao)
+            intent.putExtra("servico", servicoSelecionado)
+            Log.d("DEBUG", "Serviço sendo enviado: $servicoSelecionado")
             startActivity(intent)
             finish()
         }

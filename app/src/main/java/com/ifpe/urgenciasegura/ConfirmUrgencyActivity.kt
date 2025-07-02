@@ -20,6 +20,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.RadioGroup
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -76,32 +77,49 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         radioGroupServico = findViewById(R.id.radioGroupServico)
         spinnerTipoUrgencia = findViewById(R.id.spinnerTipoUrgencia)
         editOutroTipoUrgencia = findViewById(R.id.editOutroTipoUrgencia)
+        val textTituloServico = findViewById<TextView>(R.id.textTituloServico)
+        val servico = intent.getStringExtra("servico") ?: "guarda"
 
-        radioGroupServico.check(R.id.radioGuardaMunicipal)
-
-        atualizarSpinner(tiposGuardaMunicipal)
-
+        textTituloServico.text = if (servico == "guarda") {
+            "🚨 Solicitação para: Guarda Municipal"
+        } else {
+            "🚨 Solicitação para: Defesa Civil"
+        }
+        if (servico == "guarda") {
+            radioGroupServico.check(R.id.radioGuardaMunicipal)
+            atualizarSpinner(tiposGuardaMunicipal)
+        } else {
+            radioGroupServico.check(R.id.radioDefesaCivil)
+            atualizarSpinner(tiposDefesaCivil)
+        }
+        radioGroupServico.isEnabled = false
+        for (i in 0 until radioGroupServico.childCount) {
+            radioGroupServico.getChildAt(i).isEnabled = false
+        }
         radioGroupServico.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radioGuardaMunicipal -> atualizarSpinner(tiposGuardaMunicipal)
                 R.id.radioDefesaCivil -> atualizarSpinner(tiposDefesaCivil)
             }
         }
-
+        val editEndereco = findViewById<EditText>(R.id.editEndereco)
         spinnerTipoUrgencia.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?, view: View?, position: Int, id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selecionado = parent?.getItemAtPosition(position).toString()
                 if (selecionado == "Outro") {
                     editOutroTipoUrgencia.visibility = View.VISIBLE
                 } else {
                     editOutroTipoUrgencia.visibility = View.GONE
                 }
+                if (servico == "defesa") {
+                    editEndereco.visibility = View.VISIBLE
+                } else {
+                    editEndereco.visibility = View.GONE
+                }
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 editOutroTipoUrgencia.visibility = View.GONE
+                editEndereco.visibility = View.GONE
             }
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -160,7 +178,7 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         }
         val buttonEnviar = findViewById<Button>(R.id.buttonEnviar)
         buttonEnviar.setOnClickListener {
-            enviarSolicitacaoParaFirebase(nome, idade, celular, observacao)
+            enviarSolicitacaoParaFirebase(nome, idade, celular, observacao, servico)
         }
     }
     private fun atualizarSpinner(opcoes: List<String>) {
@@ -246,8 +264,15 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         nome: String,
         idade: String,
         celular: String,
-        observacao: String
+        observacao: String,
+        servico: String
     ) {
+        val editEndereco = findViewById<EditText>(R.id.editEndereco)
+        val endereco = if (servico == "defesa") {
+            editEndereco.text.toString()
+        } else {
+            ""
+        }
         if (nome.isBlank() || idade.isBlank() || celular.isBlank()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
             return
@@ -291,6 +316,7 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             "dataHoraFim" to "",
             "localizacao" to localizacaoAtual,
             "orgao" to orgaoSelecionado,
+            "endereco" to endereco,
             "status" to "novo",
             "timestamp" to timestamp
         )
