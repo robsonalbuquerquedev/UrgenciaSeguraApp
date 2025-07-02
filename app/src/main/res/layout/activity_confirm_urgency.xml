@@ -69,15 +69,16 @@
 
             <!-- Pergunta destacada -->
             <TextView
-                android:id="@+id/textServico"
-                android:layout_width="wrap_content"
+                android:id="@+id/textTituloServico"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                android:text="Qual serviço deseja acionar?"
+                android:text="🚨 Solicitação para: "
                 android:textColor="#264D73"
+                android:textStyle="bold"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:gravity="center"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="8dp" />
 
             <!-- Opções de escolha -->
             <RadioGroup
@@ -124,6 +125,16 @@
                 android:textColor="#000000"
                 android:textColorHint="#000000"
                 android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/editEndereco"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Digite o endereço"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
+                android:visibility="gone"
+                android:layout_marginTop="12dp"/>
 
             <!-- Botão Localização -->
             <Button
