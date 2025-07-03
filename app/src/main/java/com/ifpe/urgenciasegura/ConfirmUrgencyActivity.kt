@@ -11,6 +11,8 @@ import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
 import android.widget.AdapterView
@@ -268,11 +270,7 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         servico: String
     ) {
         val editEndereco = findViewById<EditText>(R.id.editEndereco)
-        val endereco = if (servico == "defesa") {
-            editEndereco.text.toString()
-        } else {
-            ""
-        }
+        val endereco = if (servico == "defesa") editEndereco.text.toString() else ""
         if (nome.isBlank() || idade.isBlank() || celular.isBlank()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
             return
@@ -293,9 +291,9 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
             return
         }
         val database = FirebaseDatabase.getInstance()
-        val ref = database.getReference("urgencias") // Agora salvando diretamente no nó principal
+        val ref = database.getReference("urgencias")
         val dataHora = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
-        val timestamp = System.currentTimeMillis() // 💡 Usado para ordenação no portal
+        val timestamp = System.currentTimeMillis()
         val localizacaoAtual = ultimaLocalizacao ?: "Localização não disponível"
         val radioGroup = findViewById<RadioGroup>(R.id.radioGroupServico)
         val selectedRadioId = radioGroup.checkedRadioButtonId
@@ -323,10 +321,58 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
         novaOcorrenciaRef.setValue(dadosUrgencia)
             .addOnSuccessListener {
                 Toast.makeText(this, "Solicitação enviada com sucesso!", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, ScreenHomeActivity::class.java)
-                startActivity(intent)
-                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
-                finish()
+                val emailDestino = if (orgaoSelecionado == "Guarda Municipal") {
+                    "guardamunicipal.urgencia@gmail.com"
+                } else {
+                    "defesacivil.urgencia@gmail.com"
+                }
+                val corpoEmail = """
+                🚨 Nova Solicitação de Urgência 🚨
+
+                Nome: $nome
+                Idade: $idade
+                Celular: $celular
+                Tipo de Urgência: $tipoUrgencia
+                Observações: $observacao
+                Órgão Responsável: $orgaoSelecionado
+                Localização: $localizacaoAtual
+                Data/Hora: $dataHora
+            """.trimIndent()
+                AlertDialog.Builder(this)
+                    .setTitle("Deseja notificar por e-mail?")
+                    .setMessage("""
+Isso abrirá seu app de e-mail já com os dados preenchidos para envio.
+
+Você poderá escolher o aplicativo (como o Gmail) e, ao abrir, basta clicar em ENVIAR.
+
+⚠️ Você será redirecionado automaticamente para a tela inicial **em até 10 segundos** após confirmar esta ação. Não se preocupe, se estiver no Gmail, o envio continuará normalmente.
+""".trimIndent())
+                    .setPositiveButton("Sim, notificar") { _, _ ->
+                        val intentEmail = Intent(Intent.ACTION_SEND).apply {
+                            type = "message/rfc822"
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf(emailDestino))
+                            putExtra(Intent.EXTRA_SUBJECT, "Nova Solicitação de Urgência - $orgaoSelecionado")
+                            putExtra(Intent.EXTRA_TEXT, corpoEmail)
+                        }
+                        if (intentEmail.resolveActivity(packageManager) != null) {
+                            startActivity(Intent.createChooser(intentEmail, "Escolha o app de e-mail"))
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                val intent = Intent(this, ScreenHomeActivity::class.java)
+                                startActivity(intent)
+                                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+                                finish()
+                            }, 10000)
+                        } else {
+                            Toast.makeText(this, "Nenhum app de e-mail encontrado.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .setNegativeButton("Não, obrigado") { _, _ ->
+                        val intent = Intent(this, ScreenHomeActivity::class.java)
+                        startActivity(intent)
+                        overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+                        finish()
+                    }
+                    .show()
                 fotoUri?.let { uri ->
                     try {
                         val inputStream = contentResolver.openInputStream(uri)
