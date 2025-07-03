@@ -326,45 +326,73 @@ class ConfirmUrgencyActivity : AppCompatActivity() {
                 } else {
                     "defesacivil.urgencia@gmail.com"
                 }
-                val corpoEmail = """
-                🚨 Nova Solicitação de Urgência 🚨
+                val mensagem = """
+🚨 Nova Solicitação de Urgência 🚨
 
-                Nome: $nome
-                Idade: $idade
-                Celular: $celular
-                Tipo de Urgência: $tipoUrgencia
-                Observações: $observacao
-                Órgão Responsável: $orgaoSelecionado
-                Localização: $localizacaoAtual
-                Data/Hora: $dataHora
-            """.trimIndent()
+Nome: $nome
+Idade: $idade
+Celular: $celular
+Tipo de Urgência: $tipoUrgencia
+Observações: $observacao
+Órgão Responsável: $orgaoSelecionado
+Localização: $localizacaoAtual
+Data/Hora: $dataHora
+""".trimIndent()
                 AlertDialog.Builder(this)
-                    .setTitle("Deseja notificar por e-mail?")
+                    .setTitle("Deseja notificar o órgão?")
                     .setMessage("""
-Isso abrirá seu app de e-mail já com os dados preenchidos para envio.
+Você pode enviar esta solicitação de urgência pelo WhatsApp ou por e-mail.
 
-Você poderá escolher o aplicativo (como o Gmail) e, ao abrir, basta clicar em ENVIAR.
+✅ Se escolher *WhatsApp*, você será levado direto para o app e poderá escolher o contato.
 
-⚠️ Você será redirecionado automaticamente para a tela inicial **em até 10 segundos** após confirmar esta ação. Não se preocupe, se estiver no Gmail, o envio continuará normalmente.
+📧 Se escolher *E-mail*, o sistema abrirá uma lista de apps instalados — **recomendamos selecionar o Gmail**.
+
+⚠️ Caso escolha outro app que não seja de e-mail, pode não funcionar corretamente.
 """.trimIndent())
                     .setPositiveButton("Sim, notificar") { _, _ ->
-                        val intentEmail = Intent(Intent.ACTION_SEND).apply {
-                            type = "message/rfc822"
-                            putExtra(Intent.EXTRA_EMAIL, arrayOf(emailDestino))
-                            putExtra(Intent.EXTRA_SUBJECT, "Nova Solicitação de Urgência - $orgaoSelecionado")
-                            putExtra(Intent.EXTRA_TEXT, corpoEmail)
-                        }
-                        if (intentEmail.resolveActivity(packageManager) != null) {
-                            startActivity(Intent.createChooser(intentEmail, "Escolha o app de e-mail"))
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                val intent = Intent(this, ScreenHomeActivity::class.java)
-                                startActivity(intent)
-                                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
-                                finish()
-                            }, 10000)
-                        } else {
-                            Toast.makeText(this, "Nenhum app de e-mail encontrado.", Toast.LENGTH_SHORT).show()
-                        }
+                        AlertDialog.Builder(this)
+                            .setTitle("Escolha o canal de envio")
+                            .setMessage("Você pode notificar pelo Gmail ou pelo WhatsApp.")
+                            .setPositiveButton("WhatsApp") { _, _ ->
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, mensagem)
+                                    setPackage("com.whatsapp")
+                                }
+                                try {
+                                    startActivity(intent)
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        val intentHome = Intent(this, ScreenHomeActivity::class.java)
+                                        startActivity(intentHome)
+                                        overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+                                        finish()
+                                    }, 10000)
+                                } catch (e: ActivityNotFoundException) {
+                                    Toast.makeText(this, "WhatsApp não está instalado.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .setNegativeButton("E-mail") { _, _ ->
+                                val intentEmail = Intent(Intent.ACTION_SEND).apply {
+                                    type = "message/rfc822"
+                                    putExtra(Intent.EXTRA_EMAIL, arrayOf(emailDestino))
+                                    putExtra(Intent.EXTRA_SUBJECT, "Nova Solicitação de Urgência - $orgaoSelecionado")
+                                    putExtra(Intent.EXTRA_TEXT, mensagem)
+                                }
+                                if (intentEmail.resolveActivity(packageManager) != null) {
+                                    startActivity(Intent.createChooser(intentEmail, "Escolha o app de e-mail"))
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        val intentHome = Intent(this, ScreenHomeActivity::class.java)
+                                        startActivity(intentHome)
+                                        overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+                                        finish()
+                                    }, 10000)
+                                } else {
+                                    Toast.makeText(this, "Nenhum app de e-mail encontrado.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .setNeutralButton("Cancelar", null)
+                            .show()
+
                     }
                     .setNegativeButton("Não, obrigado") { _, _ ->
                         val intent = Intent(this, ScreenHomeActivity::class.java)
