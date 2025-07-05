@@ -24,6 +24,42 @@
             android:textColor="#264D73"
             android:textSize="20sp" />
 
+        <TextView
+            android:id="@+id/textIdade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Idade: 00"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/textCelular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Celular: 00000-0000"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:layout_marginTop="2dp" />
+
+        <!-- Primeira linha divisória -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="#D1D1D1" />
+
+        <TextView
+            android:id="@+id/textOrgao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Órgão"
+            android:textStyle="bold"
+            android:textColor="#264D73"
+            android:textSize="20sp" />
+
+        <!-- Segunda linha divisória -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -40,6 +76,15 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/textDataHoraInicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Início: 00/00/0000 00:00"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:layout_marginTop="2dp" />
+
+        <TextView
             android:id="@+id/textStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,6 +92,30 @@
             android:textColor="#666666"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+
+            <ImageButton
+                android:id="@+id/btnEditar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="Editar" />
+
+            <ImageButton
+                android:id="@+id/btnDeletar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Deletar"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

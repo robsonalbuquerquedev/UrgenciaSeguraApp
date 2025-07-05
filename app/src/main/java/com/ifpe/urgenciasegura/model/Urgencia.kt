@@ -1,6 +1,7 @@
 package com.ifpe.urgenciasegura.model
 
 data class Urgencia(
+    val idFirebase: String? = null,
     val uid: String? = null,
     val nome: String? = null,
     val idade: String? = null,
