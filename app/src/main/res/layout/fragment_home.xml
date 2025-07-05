@@ -9,7 +9,6 @@
     android:background="@drawable/background"
     tools:context=".HomeFragment">
 
-    <!-- Header com fundo arredondado e sombra -->
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="0dp"
@@ -40,7 +39,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Mensagem destacada com fundo arredondado e sombra -->
     <TextView
         android:id="@+id/welcomeMessage"
         android:layout_width="0dp"
@@ -87,42 +85,18 @@
             android:text="Cadastro"
             android:backgroundTint="#49A6E9"
             android:textColor="#FFFFFF" />
-    </LinearLayout>
 
-    <!--
-    <LinearLayout
-        android:id="@+id/rightContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:background="@drawable/rounded_shadow_background"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/footerContainer"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="320dp"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:id="@+id/menuHint"
+        <Button
+            android:id="@+id/buttonSugestaoAnonima"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⬅️ Acesse o menu ao lado!"
-            android:textSize="16sp"
-            android:textColor="#264D73"
-            android:layout_marginBottom="8dp" />
-
-        <ImageView
-            android:id="@+id/imageView6"
-            android:layout_width="240dp"
-            android:layout_height="440dp"
-            android:src="@drawable/ic_logo" />
+            android:text="Enviar Sugestão Anônima"
+            android:backgroundTint="#FFA726"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="12dp" />
 
     </LinearLayout>
-    -->
 
-    <!-- Footer com fundo arredondado e sombra -->
     <LinearLayout
         android:id="@+id/footerContainer"
         android:layout_width="0dp"

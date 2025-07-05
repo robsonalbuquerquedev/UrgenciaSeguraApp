@@ -1,9 +1,11 @@
 package com.ifpe.urgenciasegura.network
 
+import com.ifpe.urgenciasegura.model.Sugestao
 import com.ifpe.urgenciasegura.model.Urgencia
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -24,4 +26,7 @@ interface FirebaseService {
         @Path("id") id: String,
         @Query("auth") authToken: String
     )
+
+    @POST("sugestoes.json")
+    suspend fun enviarSugestaoAnonima(@Body sugestao: Sugestao): Sugestao
 }
