@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.net.Uri
@@ -19,7 +18,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.TextView
@@ -36,7 +34,16 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.ifpe.urgenciasegura.model.ImgBBResponse
+import com.ifpe.urgenciasegura.network.ImgBBRetrofitClient
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.DataOutputStream
 import java.io.File
 import java.net.HttpURLConnection
@@ -403,17 +410,15 @@ Você pode enviar esta solicitação de urgência pelo WhatsApp ou por e-mail.
                     .show()
                 fotoUri?.let { uri ->
                     try {
-                        val inputStream = contentResolver.openInputStream(uri)
-                        val fileBytes = inputStream?.readBytes()
-                        inputStream?.close()
+                        val file = FileUtil.from(this, uri)
+                        val apiKey = "b828825fa22bc5c9406baa6062597283"
 
-                        if (fileBytes != null) {
-                            val fileName = "urgencia_${System.currentTimeMillis()}.jpg"
-                            enviarFotoParaTelegram(fileBytes, fileName) { fileUrl ->
-                                novaOcorrenciaRef.child("fotoUrl").setValue(fileUrl)
+                        uploadImageToImgBB(file, apiKey) { imageUrl ->
+                            if (imageUrl != null) {
+                                novaOcorrenciaRef.child("fotoUrl").setValue(imageUrl)
+                            } else {
+                                println("❌ Não foi possível enviar a imagem.")
                             }
-                        } else {
-                            println("⚠️ Nenhum byte encontrado na foto.")
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -432,6 +437,29 @@ Você pode enviar esta solicitação de urgência pelo WhatsApp ou por e-mail.
         } else {
             tipoSelecionado
         }
+    }
+    fun uploadImageToImgBB(file: File, apiKey: String, onResult: (String?) -> Unit) {
+        val apiKeyBody = apiKey.toRequestBody("text/plain".toMediaTypeOrNull())
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val imagePart = MultipartBody.Part.createFormData("image", file.name, requestFile)
+
+        val call = ImgBBRetrofitClient.instance.uploadImage(apiKeyBody, imagePart)
+        call.enqueue(object : Callback<ImgBBResponse> {
+            override fun onResponse(call: Call<ImgBBResponse>, response: Response<ImgBBResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val imageUrl = response.body()?.data?.url
+                    println("✅ Imagem enviada! URL: $imageUrl")
+                    onResult(imageUrl)
+                } else {
+                    println("❌ Falha no upload: ${response.errorBody()?.string()}")
+                    onResult(null)
+                }
+            }
+            override fun onFailure(call: Call<ImgBBResponse>, t: Throwable) {
+                println("💥 Erro no upload: ${t.message}")
+                onResult(null)
+            }
+        })
     }
     fun enviarFotoParaTelegram(fileBytes: ByteArray, fileName: String, onFotoEnviada: (String) -> Unit) {
         Thread {
