@@ -1,4 +1,7 @@
 pluginManagement {
+    plugins {
+        id("org.sonarqube") version "4.4.1.3373"
+    }
     repositories {
         google {
             content {
