@@ -48,6 +48,7 @@ import java.io.DataOutputStream
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.util.Date
 import java.util.Locale
 
@@ -361,11 +362,16 @@ Você pode enviar esta solicitação de urgência pelo WhatsApp ou por e-mail.
                             .setTitle("Escolha o canal de envio")
                             .setMessage("Você pode notificar pelo Gmail ou pelo WhatsApp.")
                             .setPositiveButton("WhatsApp") { _, _ ->
-                                val intent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, mensagem)
-                                    setPackage("com.whatsapp")
+                                val numeroWhatsApp = if (orgaoSelecionado == "Guarda Municipal") {
+                                    "+5581971168633" // <- Coloque aqui o número real da Guarda Municipal com DDI
+                                } else {
+                                    "+5581988885583" // <- Coloque aqui o número real da Defesa Civil com DDI
                                 }
+
+                                val mensagemCodificada = URLEncoder.encode(mensagem, "UTF-8")
+                                val uri = Uri.parse("https://api.whatsapp.com/send?phone=$numeroWhatsApp&text=$mensagemCodificada")
+                                val intent = Intent(Intent.ACTION_VIEW, uri)
+
                                 try {
                                     startActivity(intent)
                                     Handler(Looper.getMainLooper()).postDelayed({
@@ -374,8 +380,8 @@ Você pode enviar esta solicitação de urgência pelo WhatsApp ou por e-mail.
                                         overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
                                         finish()
                                     }, 10000)
-                                } catch (e: ActivityNotFoundException) {
-                                    Toast.makeText(this, "WhatsApp não está instalado.", Toast.LENGTH_SHORT).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(this, "WhatsApp não pôde ser aberto.", Toast.LENGTH_SHORT).show()
                                 }
                             }
                             .setNegativeButton("E-mail") { _, _ ->
