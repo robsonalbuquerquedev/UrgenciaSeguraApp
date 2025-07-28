@@ -1,6 +1,7 @@
 # 🚨 UrgenciaSeguraApp
 
 > **Projeto em desenvolvimento para o TCC de Robson Albuquerque - 6º período de Análise e Desenvolvimento de Sistemas**
+> **Orientador: Professor Dr. Ricson José de Santana**
 
 ## 🧠 Resumo
 
