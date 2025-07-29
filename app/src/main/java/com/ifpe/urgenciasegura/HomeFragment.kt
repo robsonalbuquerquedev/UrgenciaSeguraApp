@@ -5,10 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.ifpe.urgenciasegura.databinding.FragmentHomeBinding
 import com.ifpe.urgenciasegura.model.Sugestao
 import com.ifpe.urgenciasegura.network.FirebaseService
 import kotlinx.coroutines.CoroutineScope
@@ -20,27 +20,29 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val buttonLogin = view.findViewById<Button>(R.id.buttonLogin)
-        val buttonCadastro = view.findViewById<Button>(R.id.buttonCadastro)
+        _binding = FragmentHomeBinding.bind(view)
 
-        buttonLogin.setOnClickListener {
+        binding.buttonLogin.setOnClickListener {
             val intent = Intent(requireContext(), ScreenLoginActivity::class.java)
             startActivity(intent)
         }
 
-        buttonCadastro.setOnClickListener {
+        binding.buttonCadastro.setOnClickListener {
             val intent = Intent(requireContext(), ScreenRegisterActivity::class.java)
             startActivity(intent)
         }
 
-        val buttonSugestaoAnonima = view.findViewById<Button>(R.id.buttonSugestaoAnonima)
-        buttonSugestaoAnonima.setOnClickListener {
+        binding.buttonSugestaoAnonima.setOnClickListener {
             exibirDialogSugestao()
         }
     }
+
     private fun exibirDialogSugestao() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Enviar Sugestão Anônima")
@@ -62,6 +64,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         builder.setNegativeButton("Cancelar", null)
         builder.show()
     }
+
     private fun enviarSugestaoParaFirebase(texto: String) {
         val sugestao = Sugestao(mensagem = texto)
 
@@ -84,5 +87,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
